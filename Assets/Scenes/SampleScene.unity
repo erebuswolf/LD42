@@ -929,6 +929,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 372402676}
+  - component: {fileID: 372402677}
   m_Layer: 0
   m_Name: AnimationController
   m_TagString: Untagged
@@ -951,6 +952,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &372402677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 372402675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e3d99da58fe63469dfb6aa9f41e3f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationAbstractions:
+  - {fileID: 1579465500}
+  - {fileID: 1335250444}
 --- !u!1 &495897940
 GameObject:
   m_ObjectHideFlags: 0
@@ -1691,6 +1706,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VCRAnimator: {fileID: 319923074}
+  animationController: {fileID: 372402677}
 --- !u!1 &1270984763
 GameObject:
   m_ObjectHideFlags: 0
@@ -1824,6 +1840,7 @@ GameObject:
   - component: {fileID: 1335250441}
   - component: {fileID: 1335250442}
   - component: {fileID: 1335250443}
+  - component: {fileID: 1335250444}
   m_Layer: 0
   m_Name: TVAnimation2
   m_TagString: Untagged
@@ -1917,7 +1934,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 155b8578929bbb243915f3be870bb7aa, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -2003,6 +2020,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1335250444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1335250439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d67e7c05f206fb4e87431a00ef8317f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1340739688
 GameObject:
   m_ObjectHideFlags: 0
@@ -2213,6 +2241,7 @@ GameObject:
   - component: {fileID: 1579465497}
   - component: {fileID: 1579465498}
   - component: {fileID: 1579465499}
+  - component: {fileID: 1579465500}
   m_Layer: 0
   m_Name: TVAnimation1
   m_TagString: Untagged
@@ -2306,7 +2335,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 155b8578929bbb243915f3be870bb7aa, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -2392,6 +2421,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1579465500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1579465495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d67e7c05f206fb4e87431a00ef8317f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1711194410
 GameObject:
   m_ObjectHideFlags: 0
