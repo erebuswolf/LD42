@@ -24,16 +24,16 @@ public class VHSData {
         // Step 3 Create a list of timestamps that need modifying.
         for (int i = 0; i < timestamps.Count; i++) {
             // Check if we insert at this position.
-            if (!insertSet && timestamp.Start <= timestamps[i].Start) {
+            if (!insertSet && timestamp.TapeStart <= timestamps[i].TapeStart) {
                 insertIndex = i;
                 insertSet = true;
             }
 
             // Check if this timestamp should be modified or removed.
-            if (timestamp.Start <= timestamps[i].Start && timestamp.Stop >= timestamps[i].Stop) {
+            if (timestamp.TapeStart <= timestamps[i].TapeStart && timestamp.TapeStop >= timestamps[i].TapeStop) {
                 RemoveTimestamps.Add(timestamps[i]);
-            } else if (timestamp.Start < timestamps[i].Stop && timestamp.Start > timestamps[i].Start ||
-                timestamp.Stop < timestamps[i].Stop && timestamp.Stop > timestamps[i].Start) {
+            } else if (timestamp.TapeStart < timestamps[i].TapeStop && timestamp.TapeStart > timestamps[i].TapeStart ||
+                timestamp.TapeStop < timestamps[i].TapeStop && timestamp.TapeStop > timestamps[i].TapeStart) {
                 ModifyTimeStamps.Add(timestamps[i]);
             }
         }
@@ -53,27 +53,40 @@ public class VHSData {
 }
 
 public class Timestamp {
-    public float Start { get; private set; }
-    public float Stop { get; private set; }
+    public float TapeStart { get; private set; }
+    public float TapeStop { get; private set; }
+    //TODO: Impliment the anim stuff.
+    public float AnimStart { get; private set; }
+    public float AnimStop { get; private set; }
     public int Channel { get; private set; }
 
-    public Timestamp(int channel, float start, float stop) {
-        Start = start;
-        Stop = stop;
+    public Timestamp(int channel, float tapeStart, float tapeStop, float animStart) {
+        TapeStart = tapeStart;
+        TapeStop = tapeStop;
         Channel = channel;
+        AnimStart = animStart;
+        AnimStop = animStart + GetLength();
+    }
+
+    public float GetLength() {
+        return TapeStop - TapeStart;
     }
 
     public Timestamp ClipBasedOnOverwrite(Timestamp timestamp) {
         // Check if the clip is bisected by the new clip
 
-        if (Start < timestamp.Start && Stop > timestamp.Stop) {
-            Timestamp newStamp = new Timestamp(Channel, timestamp.Stop, Stop);
-            Stop = timestamp.Start;
+        if (TapeStart < timestamp.TapeStart && TapeStop > timestamp.TapeStop) {
+            float oldStop = TapeStop;
+            TapeStop = timestamp.TapeStart;
+            AnimStop = AnimStart + GetLength();
+            Timestamp newStamp = new Timestamp(Channel, timestamp.TapeStop, oldStop, AnimStop + timestamp.GetLength());
             return newStamp;
-        } else if (Start < timestamp.Start) {
-            Stop = timestamp.Start;
+        } else if (TapeStart < timestamp.TapeStart) {
+            TapeStop = timestamp.TapeStart;
+            AnimStop = AnimStart + GetLength();
         } else {
-            Start = timestamp.Stop;
+            TapeStart = timestamp.TapeStop;
+            AnimStart = AnimStop - GetLength();
         }
         return null;
     }
