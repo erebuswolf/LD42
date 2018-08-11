@@ -4,9 +4,8 @@ using UnityEngine;
 using System;
 
 public class InputAbstraction : MonoBehaviour{
-
     private Dictionary<KeyCode, InputContainer> InputToActions = new Dictionary<KeyCode, InputContainer>();
-    
+
     public void AddInputToAction(KeyCode key, InputContainer inputContiner) {
         InputToActions.Add(key, inputContiner);
     }

@@ -29,5 +29,6 @@ public class PlayerController : MonoBehaviour {
 
     public void OnSpaceHeld() {
         Debug.LogWarning("space held");
+        this.gameObject.transform.Translate(new Vector3(0, 1*Time.deltaTime));
     }
 }
