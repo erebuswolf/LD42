@@ -33,7 +33,9 @@ public class AnimationAbstraction : MonoBehaviour {
     }
 
     public void Stop() {
-        audioSource.Stop();
+        if (audioSource != null) {
+            audioSource.Stop();
+        }
     }
 
     // Update is called once per frame
