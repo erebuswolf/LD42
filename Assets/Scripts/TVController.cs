@@ -6,6 +6,10 @@ using UnityEngine.UI;
 public class TVController : MonoBehaviour {
     private Animator tVAnimator;
 
+
+    [SerializeField]
+    private List<AudioSource> VCRClicks;
+
     [SerializeField]
     private Animator VCRAnimator;
 
@@ -28,6 +32,11 @@ public class TVController : MonoBehaviour {
     [SerializeField]
     private Text VCRTapeTime;
 
+
+    private bool playing;
+    private float playStart;
+    
+
     // Use this for initialization
     void Start () {
         startTime = Time.realtimeSinceStartup;
@@ -44,6 +53,7 @@ public class TVController : MonoBehaviour {
     }
 	
     public void ToggleTV() {
+        PlayVCRClick();
         isOn = !isOn;
         tVAnimator.SetBool("TV", isOn);
         CheckTVPlayState();
@@ -77,9 +87,15 @@ public class TVController : MonoBehaviour {
         CheckTVPlayState();
         CheckVCRPlayState();
         VCRAnimator.SetBool("VCR", VCRisOn);
+        PlayVCRClick();
+    }
+
+    public void PlayVCRClick() {
+        VCRClicks[Random.Range(0, VCRClicks.Count)].Play();
     }
 
     public void PlayButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
@@ -88,15 +104,27 @@ public class TVController : MonoBehaviour {
         // swap channels and animations accordingly.
     }
 
+    private void PlayLogic() {
+        if (playing) {
+            return;    
+        }
+        playing = true;
+        playStart = Time.realtimeSinceStartup;
+    }
+
     public void StopButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
         VCRText.text = "STOP";
+
+        playing = false;
         // Do logic to keep track of play time
     }
     
     public void RecButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
@@ -106,6 +134,7 @@ public class TVController : MonoBehaviour {
     }
 
     public void FFButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
@@ -115,6 +144,7 @@ public class TVController : MonoBehaviour {
     }
 
     public void RWButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
@@ -124,6 +154,7 @@ public class TVController : MonoBehaviour {
     }
 
     public void ChannelUpButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
@@ -137,6 +168,7 @@ public class TVController : MonoBehaviour {
     }
 
     public void ChannelDownButton() {
+        PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
