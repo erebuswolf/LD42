@@ -8,6 +8,16 @@ public class VHSData {
 
     }
 
+    public void Print() {
+        foreach (Timestamp ts in timestamps) {
+            Debug.LogWarning("" + ts.ToString());
+        }
+    }
+
+    public void RemoveClipsSmallerThan(float length) {
+        timestamps.RemoveAll(x => x.GetLength() < length);
+    }
+
     public List<Timestamp> getTimestamps() {
         return timestamps;
     }
@@ -70,6 +80,10 @@ public class Timestamp {
 
     public float GetLength() {
         return TapeStop - TapeStart;
+    }
+
+    public override string ToString() {
+        return "Timestamp " + TapeStart + ", " + TapeStop + ", " + AnimStart + ", " + AnimStop + ", " + Channel;
     }
 
     public Timestamp ClipBasedOnOverwrite(Timestamp timestamp) {

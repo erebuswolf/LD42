@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 public class TVController : MonoBehaviour {
     private Animator tVAnimator;
-
-
+    
     [SerializeField]
     private List<AudioSource> VCRClicks;
 
@@ -32,10 +31,21 @@ public class TVController : MonoBehaviour {
     [SerializeField]
     private Text VCRTapeTime;
 
+    private bool recording;
+    private float recStartAnimTime;
+    private float recStartTapeTime;
 
     private bool playing;
-    private float playStart;
-    
+    // Time in the animation we started playing at.
+    private float playStartTime;
+    // Position we started playing the tape at.
+    private float playStartPosition;
+    private float playHeadPosition;
+
+    private bool FFing;
+    private bool RWing;
+
+    private VHSData vhsData;
 
     // Use this for initialization
     void Start () {
@@ -46,6 +56,7 @@ public class TVController : MonoBehaviour {
         }
         CheckTVPlayState();
         CheckVCRPlayState();
+        vhsData = new VHSData();
     }
 
     public int GetHumanChannel() {
@@ -66,6 +77,7 @@ public class TVController : MonoBehaviour {
             animationController.StopAllAnimations();
         }
     }
+
     public void CheckVCRPlayState() {
         if (!VCRisOn) {
             VCRText.text = "";
@@ -102,6 +114,8 @@ public class TVController : MonoBehaviour {
         VCRText.text = "PLAY";
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
+        StopLogic();
+        PlayLogic();
     }
 
     private void PlayLogic() {
@@ -109,7 +123,8 @@ public class TVController : MonoBehaviour {
             return;    
         }
         playing = true;
-        playStart = Time.realtimeSinceStartup;
+        playStartTime = GetTimePassed();
+        var timestamps = vhsData.getTimestamps();
     }
 
     public void StopButton() {
@@ -117,10 +132,18 @@ public class TVController : MonoBehaviour {
         if (!VCRisOn) {
             return;
         }
+        StopLogic();
+    }
+    public void StopLogic() {
         VCRText.text = "STOP";
 
         playing = false;
         // Do logic to keep track of play time
+        StopRecording();
+
+        playStartPosition = playHeadPosition;
+
+        vhsData.RemoveClipsSmallerThan(.5f);
     }
     
     public void RecButton() {
@@ -128,9 +151,33 @@ public class TVController : MonoBehaviour {
         if (!VCRisOn) {
             return;
         }
+        if (recording) {
+            return;
+        }
+        StopLogic();
         VCRText.text = "REC";
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
+        StartRecording();
+    }
+
+    public void StartRecording() {
+        recording = true;
+        recStartAnimTime = GetTimePassed();
+        recStartTapeTime = playHeadPosition;
+        playStartTime = GetTimePassed();
+    }
+
+    public void StopRecording() {
+        FFing = false;
+        RWing = false;
+        playStartPosition = playHeadPosition;
+        if (!recording) {
+            return;
+        }
+        recording = false;
+        float recLength = GetTimePassed() - recStartAnimTime;
+        vhsData.AddTimestamp(new Timestamp(channel, recStartTapeTime, recStartTapeTime + recLength, recStartAnimTime));
     }
 
     public void FFButton() {
@@ -139,8 +186,11 @@ public class TVController : MonoBehaviour {
             return;
         }
         VCRText.text = "FF";
+        StopLogic();
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
+        StopRecording();
+        FFing = true;
     }
 
     public void RWButton() {
@@ -148,47 +198,81 @@ public class TVController : MonoBehaviour {
         if (!VCRisOn) {
             return;
         }
+        StopLogic();
         VCRText.text = "RW";
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
+        StopRecording();
+        RWing = true;
     }
 
     public void ChannelUpButton() {
+        ChangeChannel(1);
+    }
+
+    public void ChannelDownButton() {
+        ChangeChannel(-1);
+    }
+
+    public void ChangeChannel(int change) {
         PlayVCRClick();
         if (!VCRisOn) {
             return;
         }
-        channel++;
-        if (channel > 3) {
+
+        bool handleRecordingLogic = recording;
+        if (handleRecordingLogic) {
+            StopRecording();
+        }
+
+        channel+= change;
+        if (channel < 0) {
+            channel = 3;
+        }else if (channel > 3) {
             channel = 0;
         }
         SetChannelDisp();
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
-    }
-
-    public void ChannelDownButton() {
-        PlayVCRClick();
-        if (!VCRisOn) {
-            return;
+        if (handleRecordingLogic) {
+            StartRecording();
         }
-        channel--;
-
-        if (channel < 0) {
-            channel = 3;
-        }
-        SetChannelDisp();
-        // Do logic to keep track of play time, update play position and
-        // swap channels and animations accordingly.
     }
-
-
+    
     public float GetTimePassed() {
         return Time.realtimeSinceStartup - startTime;
     }
     
+    public void UpdateVCRDisp() {
+        if (!VCRisOn) {
+            return;
+        }
+        System.TimeSpan time = System.TimeSpan.FromSeconds(playHeadPosition);
+        VCRTapeTime.text = string.Format("{0:00}:{1:00}", time.Minutes, time.Seconds);
+    }
+
+    public void EndOfTape() {
+        StopLogic();
+    }
+
+    public void SeekLogic() {
+        if (FFing) {
+            playHeadPosition = playHeadPosition + Time.deltaTime * 4;
+        } else if (RWing) {
+            playHeadPosition = playHeadPosition - Time.deltaTime * 4;
+        }
+    }
+
 	// Update is called once per frame
 	void Update () {
+        if (playing || recording) {
+            playHeadPosition = playStartPosition + (GetTimePassed() - playStartTime);
+        }
+        
+        if (FFing || RWing) {
+            SeekLogic();
+        }
 
+        UpdateVCRDisp();
     }
 }

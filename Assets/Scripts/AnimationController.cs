@@ -26,7 +26,4 @@ public class AnimationController : MonoBehaviour {
             animationAbstractions[channel].PlayAtTime(time);
         }
     }
-    
-    
-
 }
