@@ -1,0 +1,100 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE project PUBLIC "-//audacityproject-1.3.0//DTD//EN" "http://audacity.sourceforge.net/xml/audacityproject-1.3.0.dtd" >
+<project xmlns="http://audacity.sourceforge.net/xml/" projname="30666__orehek__tvonoff_data" version="1.3.0" audacityversion="2.1.2" sel0="1.2962437500" sel1="1.2962437500" vpos="432" h="0.0000000000" zoom="622.5680933852" rate="96000.0" snapto="off" selectionformat="hh:mm:ss + milliseconds" frequencyformat="Hz" bandwidthformat="octaves">
+	<tags>
+		<tag name="TITLE" value="TVonoff"/>
+		<tag name="COMMENTS" value=" 0000005D 0000001B 000002F3 00000088 000000B4 000000B4 00002D82 0000113F 000000B4 000000B4"/>
+	</tags>
+	<wavetrack name="30666__orehek__tvonoff" channel="0" linked="1" mute="1" solo="0" height="150" minimized="0" isSelected="0" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="138780">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000e60.au" len="138780" min="-0.224119" max="0.357423" rms="0.023258"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="1" linked="0" mute="1" solo="0" height="150" minimized="0" isSelected="0" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="138780">
+				<waveblock start="0">
+					<simpleblockfile filename="e00008ac.au" len="138780" min="-0.097406" max="0.136114" rms="0.014159"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="0" linked="1" mute="1" solo="0" height="150" minimized="0" isSelected="0" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="138780">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000f96.au" len="138780" min="-0.097599" max="0.136188" rms="0.014035"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="1" linked="0" mute="1" solo="0" height="150" minimized="0" isSelected="0" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="138780">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000a1f.au" len="138780" min="-0.224283" max="0.357349" rms="0.023266"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="100847">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000b60.au" len="92370" min="-0.251068" max="0.165588" rms="0.010834"/>
+				</waveblock>
+				<waveblock start="92370">
+					<simpleblockfile filename="e0000d39.au" len="8477" min="-0.007283" max="0.007567" rms="0.001322"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="100847">
+				<waveblock start="0">
+					<simpleblockfile filename="e00000e9.au" len="92370" min="-0.076996" max="0.077576" rms="0.009619"/>
+				</waveblock>
+				<waveblock start="92370">
+					<simpleblockfile filename="e0000451.au" len="8477" min="-0.013401" max="0.012446" rms="0.00214"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="100847">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000828.au" len="92370" min="-0.076996" max="0.077576" rms="0.009584"/>
+				</waveblock>
+				<waveblock start="92370">
+					<simpleblockfile filename="e0000e18.au" len="8477" min="-0.013182" max="0.012658" rms="0.002143"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="30666__orehek__tvonoff" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="96000" gain="1.0" pan="0.0">
+		<waveclip offset="0.00000000">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="100847">
+				<waveblock start="0">
+					<simpleblockfile filename="e0000d14.au" len="92370" min="-0.251068" max="0.165588" rms="0.010851"/>
+				</waveblock>
+				<waveblock start="92370">
+					<simpleblockfile filename="e0000648.au" len="8477" min="-0.007097" max="0.007588" rms="0.001316"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+</project>
