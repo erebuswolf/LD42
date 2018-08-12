@@ -134,11 +134,28 @@ public class TVController : MonoBehaviour {
         CheckVCRPlayState();
     }
 
+    private bool PlayingTransitionWhiteNoise;
+    private float TransitionWhiteNoiseStart;
+    const float TRANSITION_DURATION = .2F;
+
     private void PlayingUpdateCall() {
         var timestamps = vhsData.getTimestamps();
         if (activePlayingTimestamp == null || vhsData.GetTimestampAtHead(playHeadPosition) != activePlayingTimestamp) {
-            animationController.StopAllAnimations(true);
-            activePlayingTimestamp = vhsData.GetTimestampAtHead(playHeadPosition);
+
+            if (!PlayingTransitionWhiteNoise) {
+                PlayingTransitionWhiteNoise = true;
+                animationController.StopAllAnimations(true);
+                animationController.PlayAnimationAt(0, -1);
+                TransitionWhiteNoiseStart = GetTimePassed();
+                return;
+            } else if (GetTimePassed() - TransitionWhiteNoiseStart > TRANSITION_DURATION) {
+                PlayingTransitionWhiteNoise = false;
+                animationController.StopAllAnimations(true);
+                activePlayingTimestamp = vhsData.GetTimestampAtHead(playHeadPosition);
+            } else if (PlayingTransitionWhiteNoise) {
+                return;
+            }
+            
             if (activePlayingTimestamp == null) {
                 //play white noise
                 animationController.PlayAnimationAt(0, -1);
@@ -298,7 +315,7 @@ public class TVController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (playing || recording) {
+        if ((playing || recording) && !PlayingTransitionWhiteNoise) {
             playHeadPosition = playStartPosition + (GetTimePassed() - playStartTime);
             if (playHeadPosition > VHS_LENGTH) {
                 playHeadPosition = VHS_LENGTH;

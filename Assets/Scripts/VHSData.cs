@@ -24,7 +24,7 @@ public class VHSData {
     }
 
     public void RemoveClipsSmallerThan(float length) {
-        timestamps.RemoveAll(x => x.GetLength() < length);
+        timestamps.RemoveAll(x => x.GetLength() < length && x.Channel != -1);
     }
 
     public List<Timestamp> getTimestamps() {
@@ -47,7 +47,6 @@ public class VHSData {
                 insertIndex = i;
                 insertSet = true;
             }
-
             // Check if this timestamp should be modified or removed.
             if (timestamp.TapeStart <= timestamps[i].TapeStart && timestamp.TapeStop >= timestamps[i].TapeStop) {
                 RemoveTimestamps.Add(timestamps[i]);
