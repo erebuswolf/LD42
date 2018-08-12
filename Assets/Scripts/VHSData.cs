@@ -34,11 +34,11 @@ public class VHSData {
     public void Load(string data) {
         timestamps.Clear();
         var stamps = data.Split('-');
-        Debug.LogWarningFormat(" got {0}", stamps.Length);
+    //    Debug.LogWarningFormat(" got {0}", stamps.Length);
         foreach (string s in stamps) {
             var stamp = s.Split(',');
             if (stamp.Length != 4) {
-                Debug.LogWarningFormat("expected 4 elements, got {0} in {1}", stamp.Length, s);
+             //   Debug.LogWarningFormat("expected 4 elements, got {0} in {1}", stamp.Length, s);
                 continue;
             }
             float AnimStart = float.Parse(stamp[0]);
