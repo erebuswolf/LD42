@@ -6,6 +6,7 @@ public class AnimationAbstraction : MonoBehaviour {
     private Animator animator;
     private AudioSource audioSource;
     [SerializeField] string AnimationToPlay;
+    private SpriteRenderer spriteRenderer;
 
     private bool setup;
     private void init() {
@@ -15,13 +16,19 @@ public class AnimationAbstraction : MonoBehaviour {
         setup = true;
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        if (animator == null || audioSource == null) {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (animator == null || audioSource == null || spriteRenderer == null) {
             Debug.LogError("Animation abstraction created with null animator or audio source");
         }
     }
     // Use this for initialization
     void Start () {
         init();
+        spriteRenderer.enabled = false;
+    }
+
+    public void SetVis(bool vis) {
+        spriteRenderer.enabled = vis;
     }
 
     public void PlayAtTime(float time) {

@@ -7,7 +7,7 @@ public class TVController : MonoBehaviour {
     const float VHS_LENGTH = 90;
 
     private Animator tVAnimator;
-    
+
     [SerializeField]
     private List<AudioSource> VCRClicks;
 
@@ -25,7 +25,7 @@ public class TVController : MonoBehaviour {
     int channel = 0;
 
     [SerializeField]
-    private Text VCRChannelText; 
+    private Text VCRChannelText;
 
     [SerializeField]
     private Text VCRText;
@@ -44,6 +44,8 @@ public class TVController : MonoBehaviour {
     private float playStartPosition;
     private float playHeadPosition;
 
+    private bool WasPlayingDuringSeek;
+
     private bool FFing;
     private bool RWing;
 
@@ -52,7 +54,7 @@ public class TVController : MonoBehaviour {
     private Timestamp activePlayingTimestamp;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         startTime = Time.realtimeSinceStartup;
         tVAnimator = GetComponent<Animator>();
         if (tVAnimator == null) {
@@ -66,22 +68,25 @@ public class TVController : MonoBehaviour {
     public int GetHumanChannel() {
         return channel + 6;
     }
-	
+
     public void ToggleTV() {
         PlayVCRClick();
         isOn = !isOn;
         tVAnimator.SetBool("TV", isOn);
         CheckTVPlayState();
     }
-    
+
     public void CheckTVPlayState() {
-        if (VCRisOn && isOn && !playing) {
+        if (VCRisOn && isOn && !playing && !FFing && !RWing) {
+            animationController.StopAllAudio();
             animationController.PlayAnimationAt(GetTimePassed(), 0);
+        } else if (VCRisOn && isOn && playing) {
+            startAudioAgain();
         } else {
             animationController.StopAllAudio();
         }
     }
-    
+
     public void CheckVCRPlayState() {
         if (!VCRisOn) {
             VCRText.text = "";
@@ -118,6 +123,9 @@ public class TVController : MonoBehaviour {
         if (!VCRisOn) {
             return;
         }
+        if (playing) {
+            return;
+        }
         VCRText.text = "PLAY";
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
@@ -127,7 +135,7 @@ public class TVController : MonoBehaviour {
 
     private void PlayLogic() {
         if (playing) {
-            return;    
+            return;
         }
         playing = true;
         playStartTime = GetTimePassed();
@@ -138,10 +146,19 @@ public class TVController : MonoBehaviour {
     private float TransitionWhiteNoiseStart;
     const float TRANSITION_DURATION = .2F;
 
-    private void PlayingUpdateCall() {
-        var timestamps = vhsData.getTimestamps();
-        if (activePlayingTimestamp == null || vhsData.GetTimestampAtHead(playHeadPosition) != activePlayingTimestamp) {
+    private void startAudioAgain() {
+        if (activePlayingTimestamp != null && vhsData.GetTimestampAtHead(playHeadPosition) == activePlayingTimestamp) {
+            float timeIntoAnimation = (playHeadPosition - activePlayingTimestamp.TapeStart);
+            animationController.PlayAnimationAt(activePlayingTimestamp.AnimStart + timeIntoAnimation, activePlayingTimestamp.Channel);
+        } else {
+            Debug.LogWarningFormat("starting audio again {0} {1}", activePlayingTimestamp != null, vhsData.GetTimestampAtHead(playHeadPosition) == activePlayingTimestamp);
 
+            animationController.PlayAnimationAt(0, -1);
+        }
+    }
+
+    private void PlayingUpdateCall() {
+        if (activePlayingTimestamp == null || vhsData.GetTimestampAtHead(playHeadPosition) != activePlayingTimestamp) {
             if (!PlayingTransitionWhiteNoise) {
                 PlayingTransitionWhiteNoise = true;
                 animationController.StopAllAnimations(true);
@@ -155,12 +172,14 @@ public class TVController : MonoBehaviour {
             } else if (PlayingTransitionWhiteNoise) {
                 return;
             }
-            
+
             if (activePlayingTimestamp == null) {
                 //play white noise
-                animationController.PlayAnimationAt(0, -1);
+                if (!animationController.PlayingWhiteNoise) {
+                    animationController.PlayAnimationAt(0, -1);
+                }
             } else {
-                animationController.PlayAnimationAt(activePlayingTimestamp.AnimStart, activePlayingTimestamp.Channel);
+                animationController.PlayAnimationAt(activePlayingTimestamp.AnimStart + playHeadPosition - activePlayingTimestamp.TapeStart, activePlayingTimestamp.Channel);
             }
         }
     }
@@ -178,15 +197,29 @@ public class TVController : MonoBehaviour {
         playing = false;
         FFing = false;
         RWing = false;
+        WasPlayingDuringSeek = false;
 
         // Do logic to keep track of play time
         StopRecording();
         CheckTVPlayState();
         playStartPosition = playHeadPosition;
-
+        activePlayingTimestamp = null;
         vhsData.RemoveClipsSmallerThan(.5f);
     }
-    
+
+    public void SeekCleanup() {
+        playing = false;
+        FFing = false;
+        RWing = false;
+
+        // Do logic to keep track of play time
+        StopRecording();
+        CheckTVPlayState();
+        playStartPosition = playHeadPosition;
+        activePlayingTimestamp = null;
+        vhsData.RemoveClipsSmallerThan(.5f);
+    }
+
     public void RecButton() {
         PlayVCRClick();
         if (!VCRisOn) {
@@ -226,8 +259,9 @@ public class TVController : MonoBehaviour {
         if (!VCRisOn) {
             return;
         }
+        WasPlayingDuringSeek |= playing;
         VCRText.text = "FF";
-        StopLogic();
+        SeekCleanup();
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
         StopRecording();
@@ -239,7 +273,9 @@ public class TVController : MonoBehaviour {
         if (!VCRisOn) {
             return;
         }
-        StopLogic();
+        
+        WasPlayingDuringSeek |= playing;
+        SeekCleanup();
         VCRText.text = "RW";
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
@@ -266,10 +302,10 @@ public class TVController : MonoBehaviour {
             StopRecording();
         }
 
-        channel+= change;
+        channel += change;
         if (channel < 0) {
             channel = 3;
-        }else if (channel > 3) {
+        } else if (channel > 3) {
             channel = 0;
         }
         SetChannelDisp();
@@ -279,11 +315,11 @@ public class TVController : MonoBehaviour {
             StartRecording();
         }
     }
-    
+
     public float GetTimePassed() {
         return Time.realtimeSinceStartup - startTime;
     }
-    
+
     public void UpdateVCRDisp() {
         if (!VCRisOn) {
             return;
@@ -294,7 +330,22 @@ public class TVController : MonoBehaviour {
 
     public void EndOfTape() {
         PlayVCRClick();
+        bool wasPlaying = WasPlayingDuringSeek;
         StopLogic();
+        VCRText.text = "STOP";
+        if (wasPlaying) {
+            VCRText.text = "PLAY";
+            PlayLogic();
+        }
+    }
+
+    private void SeekVisual() {
+        var ts = vhsData.GetTimestampAtHead(playHeadPosition);
+        if (ts != null) {
+            animationController.PlayAnimationAt(ts.AnimStart + playHeadPosition - ts.TapeStart, ts.Channel);
+        } else {
+            animationController.PlayAnimationAt(0, -1);
+        }
     }
 
     public void SeekLogic() {
@@ -303,26 +354,34 @@ public class TVController : MonoBehaviour {
             if (playHeadPosition > VHS_LENGTH) {
                 playHeadPosition = VHS_LENGTH;
                 EndOfTape();
+            } else {
+                if (WasPlayingDuringSeek) {
+                    SeekVisual();
+                }
             }
         } else if (RWing) {
             playHeadPosition = playHeadPosition - Time.deltaTime * 8;
             if (playHeadPosition < 0) {
                 playHeadPosition = 0;
                 EndOfTape();
+            } else {
+                if (WasPlayingDuringSeek) {
+                    SeekVisual();
+                }
             }
         }
     }
 
 	// Update is called once per frame
 	void Update () {
-        if ((playing || recording) && !PlayingTransitionWhiteNoise) {
+        if ((playing && !PlayingTransitionWhiteNoise) || recording) {
             playHeadPosition = playStartPosition + (GetTimePassed() - playStartTime);
             if (playHeadPosition > VHS_LENGTH) {
                 playHeadPosition = VHS_LENGTH;
                 EndOfTape();
             }
         }
-        if (playing) {
+        if (isOn && playing) {
             PlayingUpdateCall();
         }
         

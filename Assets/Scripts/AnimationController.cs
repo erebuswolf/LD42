@@ -8,7 +8,7 @@ public class AnimationController : MonoBehaviour {
 
     [SerializeField] private AnimationAbstraction whiteNoise;
 
-    private bool PlayingWhiteNoise;
+    public bool PlayingWhiteNoise { get; private set; }
 
     // Use this for initialization
     void Start () {
@@ -24,34 +24,35 @@ public class AnimationController : MonoBehaviour {
         foreach (AnimationAbstraction aa in animationAbstractions) {
             aa.Stop();
         }
-         whiteNoise.Stop();
-        
+        whiteNoise.Stop();
+        PlayingWhiteNoise = false;
     }
 
     public void StopAllAnimations(bool keepWhiteNoise) {
         foreach(AnimationAbstraction aa in animationAbstractions) {
             aa.Stop();
-            aa.gameObject.SetActive(false);
+            aa.SetVis(false);
         }
         if(!keepWhiteNoise) {
             whiteNoise.Stop();
-            whiteNoise.gameObject.SetActive(false);
+            whiteNoise.SetVis(false);
             PlayingWhiteNoise = false;
         }
     }
 
     public void PlayAnimationAt(float time, int channel) {
-        if(channel < animationAbstractions.Count && channel >=0 ) {
-            whiteNoise.gameObject.SetActive(false);
-            animationAbstractions[channel].gameObject.SetActive(true);
+        StopAllAudio();
+        if (channel < animationAbstractions.Count && channel >=0 ) {
+            whiteNoise.SetVis(false);
+            animationAbstractions[channel].SetVis(true);
             animationAbstractions[channel].PlayAtTime(time);
             PlayingWhiteNoise = false;
         } else {
             if (PlayingWhiteNoise) {
                 return;
             }
-            whiteNoise.gameObject.SetActive(true);
             whiteNoise.PlayAtTime(0);
+            whiteNoise.SetVis(true);
             PlayingWhiteNoise = true;
         }
     }
