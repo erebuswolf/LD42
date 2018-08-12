@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class TVController : MonoBehaviour {
+    const float VHS_LENGTH = 90;
+
     private Animator tVAnimator;
     
     [SerializeField]
@@ -134,10 +136,14 @@ public class TVController : MonoBehaviour {
         }
         StopLogic();
     }
+
     public void StopLogic() {
         VCRText.text = "STOP";
 
         playing = false;
+        FFing = false;
+        RWing = false;
+
         // Do logic to keep track of play time
         StopRecording();
 
@@ -252,14 +258,23 @@ public class TVController : MonoBehaviour {
     }
 
     public void EndOfTape() {
+        PlayVCRClick();
         StopLogic();
     }
 
     public void SeekLogic() {
         if (FFing) {
-            playHeadPosition = playHeadPosition + Time.deltaTime * 4;
+            playHeadPosition = playHeadPosition + Time.deltaTime * 8;
+            if (playHeadPosition > VHS_LENGTH) {
+                playHeadPosition = VHS_LENGTH;
+                EndOfTape();
+            }
         } else if (RWing) {
-            playHeadPosition = playHeadPosition - Time.deltaTime * 4;
+            playHeadPosition = playHeadPosition - Time.deltaTime * 8;
+            if (playHeadPosition < 0) {
+                playHeadPosition = 0;
+                EndOfTape();
+            }
         }
     }
 
@@ -267,6 +282,10 @@ public class TVController : MonoBehaviour {
 	void Update () {
         if (playing || recording) {
             playHeadPosition = playStartPosition + (GetTimePassed() - playStartTime);
+            if (playHeadPosition > VHS_LENGTH) {
+                playHeadPosition = VHS_LENGTH;
+                EndOfTape();
+            }
         }
         
         if (FFing || RWing) {
