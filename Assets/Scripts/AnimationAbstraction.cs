@@ -5,20 +5,33 @@ using UnityEngine;
 public class AnimationAbstraction : MonoBehaviour {
     private Animator animator;
     private AudioSource audioSource;
+    [SerializeField] string AnimationToPlay;
 
-    // Use this for initialization
-    void Start () {
+    private bool setup;
+    private void init() {
+        if (setup) {
+            return;
+        }
+        setup = true;
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         if (animator == null || audioSource == null) {
             Debug.LogError("Animation abstraction created with null animator or audio source");
         }
     }
+    // Use this for initialization
+    void Start () {
+        init();
+    }
 
     public void PlayAtTime(float time) {
+        init();
         var info = animator.GetCurrentAnimatorStateInfo(0);
-        animator.Play("Channel1", -1, time/ info.length);
+        animator.Play(AnimationToPlay, -1, time/ info.length);
         audioSource.Stop();
+        if(audioSource.clip == null) {
+            return;
+        }
         if (audioSource.clip.length < time) {
             Debug.LogWarningFormat("time is longer than clip {0} > {1}", time, audioSource.clip.length);
             return;

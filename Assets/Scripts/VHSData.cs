@@ -8,6 +8,15 @@ public class VHSData {
 
     }
 
+    public Timestamp GetTimestampAtHead(float head) {
+        foreach(Timestamp ts in timestamps) {
+            if (head < ts.TapeStop && head >= ts.TapeStart) {
+                return ts;
+            }
+        }
+        return null;
+    }
+
     public void Print() {
         foreach (Timestamp ts in timestamps) {
             Debug.LogWarning("" + ts.ToString());

@@ -49,6 +49,8 @@ public class TVController : MonoBehaviour {
 
     private VHSData vhsData;
 
+    private Timestamp activePlayingTimestamp;
+
     // Use this for initialization
     void Start () {
         startTime = Time.realtimeSinceStartup;
@@ -73,13 +75,13 @@ public class TVController : MonoBehaviour {
     }
     
     public void CheckTVPlayState() {
-        if (VCRisOn && isOn) {
+        if (VCRisOn && isOn && !playing) {
             animationController.PlayAnimationAt(GetTimePassed(), 0);
         } else {
-            animationController.StopAllAnimations();
+            animationController.StopAllAudio();
         }
     }
-
+    
     public void CheckVCRPlayState() {
         if (!VCRisOn) {
             VCRText.text = "";
@@ -100,6 +102,9 @@ public class TVController : MonoBehaviour {
         VCRisOn = !VCRisOn;
         CheckTVPlayState();
         CheckVCRPlayState();
+        if (!VCRisOn) {
+            StopLogic();
+        }
         VCRAnimator.SetBool("VCR", VCRisOn);
         PlayVCRClick();
     }
@@ -126,7 +131,21 @@ public class TVController : MonoBehaviour {
         }
         playing = true;
         playStartTime = GetTimePassed();
+        CheckVCRPlayState();
+    }
+
+    private void PlayingUpdateCall() {
         var timestamps = vhsData.getTimestamps();
+        if (activePlayingTimestamp == null || vhsData.GetTimestampAtHead(playHeadPosition) != activePlayingTimestamp) {
+            animationController.StopAllAnimations(true);
+            activePlayingTimestamp = vhsData.GetTimestampAtHead(playHeadPosition);
+            if (activePlayingTimestamp == null) {
+                //play white noise
+                animationController.PlayAnimationAt(0, -1);
+            } else {
+                animationController.PlayAnimationAt(activePlayingTimestamp.AnimStart, activePlayingTimestamp.Channel);
+            }
+        }
     }
 
     public void StopButton() {
@@ -135,18 +154,17 @@ public class TVController : MonoBehaviour {
             return;
         }
         StopLogic();
+        VCRText.text = "STOP";
     }
 
     public void StopLogic() {
-        VCRText.text = "STOP";
-
         playing = false;
         FFing = false;
         RWing = false;
 
         // Do logic to keep track of play time
         StopRecording();
-
+        CheckTVPlayState();
         playStartPosition = playHeadPosition;
 
         vhsData.RemoveClipsSmallerThan(.5f);
@@ -286,6 +304,9 @@ public class TVController : MonoBehaviour {
                 playHeadPosition = VHS_LENGTH;
                 EndOfTape();
             }
+        }
+        if (playing) {
+            PlayingUpdateCall();
         }
         
         if (FFing || RWing) {
