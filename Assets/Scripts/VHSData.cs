@@ -8,6 +8,47 @@ public class VHSData {
 
     }
 
+    public void wipe() {
+        timestamps = new List<Timestamp>();
+    }
+
+    public void FastLoad(string data) {
+        timestamps.Clear();
+        var stamps = data.Split('-');
+        Debug.LogWarningFormat(" got {0}", stamps.Length);
+        float Tapetime = 0;
+        foreach (string s in stamps) {
+            var stamp = s.Split(',');
+            if (stamp.Length != 2) {
+                Debug.LogWarningFormat("expected 2 elements, got {0} in {1}", stamp.Length, s);
+                continue;
+            }
+            float AnimStart = float.Parse(stamp[0]);
+            float AnimStop = float.Parse(stamp[1]);
+            float TapeStart = Tapetime;
+            AddTimestamp(new Timestamp(0, TapeStart, TapeStart + (AnimStop - AnimStart), AnimStart));
+            Tapetime = TapeStart + (AnimStop - AnimStart);
+        }
+    }
+
+    public void Load(string data) {
+        timestamps.Clear();
+        var stamps = data.Split('-');
+        Debug.LogWarningFormat(" got {0}", stamps.Length);
+        foreach (string s in stamps) {
+            var stamp = s.Split(',');
+            if (stamp.Length != 4) {
+                Debug.LogWarningFormat("expected 4 elements, got {0} in {1}", stamp.Length, s);
+                continue;
+            }
+            float AnimStart = float.Parse(stamp[0]);
+            float AnimStop = float.Parse(stamp[1]);
+            float TapeStart = float.Parse(stamp[2]);
+            int Channel = int.Parse(stamp[3]);
+            AddTimestamp(new Timestamp(Channel, TapeStart, TapeStart + (AnimStop - AnimStart), AnimStart));
+        }
+    }
+
     public Timestamp GetTimestampAtHead(float head) {
         foreach(Timestamp ts in timestamps) {
             if (head < ts.TapeStop && head >= ts.TapeStart) {
@@ -68,6 +109,13 @@ public class VHSData {
             }
         }
     }
+    public string SerializeToString() {
+        string output = "";
+        foreach (Timestamp ts in timestamps) {
+            output += ts.SerializeToString() + "-";
+        }
+        return output;
+    }
 }
 
 public class Timestamp {
@@ -88,6 +136,10 @@ public class Timestamp {
 
     public float GetLength() {
         return TapeStop - TapeStart;
+    }
+
+    public string SerializeToString() {
+        return AnimStart + " , " + AnimStop + " , " + TapeStart + " , " + Channel;
     }
 
     public override string ToString() {

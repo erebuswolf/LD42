@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class TVController : MonoBehaviour {
-    const float VHS_LENGTH = 90;
+    const float VHS_LENGTH = 15;
 
     private Animator tVAnimator;
 
@@ -17,9 +17,13 @@ public class TVController : MonoBehaviour {
     [SerializeField]
     private AnimationController animationController;
 
-    private bool isOn;
-    private bool VCRisOn;
+    [SerializeField]
+    private bool TVIsOn;
 
+    [SerializeField]
+    private bool VCRIsOn;
+
+    [SerializeField]
     float startTime = 0;
 
     int channel = 0;
@@ -33,25 +37,65 @@ public class TVController : MonoBehaviour {
     [SerializeField]
     private Text VCRTapeTime;
 
+    [SerializeField]
     private bool recording;
+
+    [SerializeField]
     private float recStartAnimTime;
+
+    [SerializeField]
     private float recStartTapeTime;
 
+    [SerializeField]
     private bool playing;
     // Time in the animation we started playing at.
+
+    [SerializeField]
     private float playStartTime;
     // Position we started playing the tape at.
+
+    [SerializeField]
     private float playStartPosition;
+
+    [SerializeField]
     private float playHeadPosition;
 
+
+    [SerializeField]
     private bool WasPlayingDuringSeek;
 
+    [SerializeField]
+    private Button Save;
+
+    [SerializeField]
+    private InputField SaveOutput;
+    
+    [SerializeField]
+    private InputField LoadInput;
+    
+    [SerializeField]
+    private Button Load;
+
+    [SerializeField]
+    private Button Wipe;
+
+    [SerializeField]
     private bool FFing;
+
+    [SerializeField]
     private bool RWing;
 
     private VHSData vhsData;
 
     private Timestamp activePlayingTimestamp;
+
+    [SerializeField]
+    private bool PlayingTransitionWhiteNoise;
+
+    [SerializeField]
+    private float TransitionWhiteNoiseStart;
+    
+    const float TRANSITION_DURATION = .2F;
 
     // Use this for initialization
     void Start() {
@@ -71,16 +115,17 @@ public class TVController : MonoBehaviour {
 
     public void ToggleTV() {
         PlayVCRClick();
-        isOn = !isOn;
-        tVAnimator.SetBool("TV", isOn);
+        TVIsOn = !TVIsOn;
+        tVAnimator.SetBool("TV", TVIsOn);
         CheckTVPlayState();
     }
 
+    //Called when tv is turned on or off or vcr is turned on or off to check tv state.
     public void CheckTVPlayState() {
-        if (VCRisOn && isOn && !playing && !FFing && !RWing) {
+        if (VCRIsOn && TVIsOn && !playing && !((FFing || RWing)&&WasPlayingDuringSeek )) {
             animationController.StopAllAudio();
             animationController.PlayAnimationAt(GetTimePassed(), 0);
-        } else if (VCRisOn && isOn && playing) {
+        } else if (VCRIsOn && TVIsOn && playing) {
             startAudioAgain();
         } else {
             animationController.StopAllAudio();
@@ -88,13 +133,15 @@ public class TVController : MonoBehaviour {
     }
 
     public void CheckVCRPlayState() {
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             VCRText.text = "";
             VCRTapeTime.text = "";
             VCRChannelText.text = "";
-        } else if (!playing) {
-            VCRText.text = "STOP";
-            VCRTapeTime.text = "00:00";
+        } else {
+            if (!playing) {
+                VCRText.text = "STOP";
+            }
+            UpdateVCRDisp();
             SetChannelDisp();
         }
     }
@@ -104,13 +151,13 @@ public class TVController : MonoBehaviour {
     }
 
     public void TurnOnVCR() {
-        VCRisOn = !VCRisOn;
+        VCRIsOn = !VCRIsOn;
         CheckTVPlayState();
         CheckVCRPlayState();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             StopLogic();
         }
-        VCRAnimator.SetBool("VCR", VCRisOn);
+        VCRAnimator.SetBool("VCR", VCRIsOn);
         PlayVCRClick();
     }
 
@@ -120,7 +167,7 @@ public class TVController : MonoBehaviour {
 
     public void PlayButton() {
         PlayVCRClick();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
         if (playing) {
@@ -141,10 +188,6 @@ public class TVController : MonoBehaviour {
         playStartTime = GetTimePassed();
         CheckVCRPlayState();
     }
-
-    private bool PlayingTransitionWhiteNoise;
-    private float TransitionWhiteNoiseStart;
-    const float TRANSITION_DURATION = .2F;
 
     private void startAudioAgain() {
         if (activePlayingTimestamp != null && vhsData.GetTimestampAtHead(playHeadPosition) == activePlayingTimestamp) {
@@ -186,7 +229,7 @@ public class TVController : MonoBehaviour {
 
     public void StopButton() {
         PlayVCRClick();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
         StopLogic();
@@ -198,13 +241,17 @@ public class TVController : MonoBehaviour {
         FFing = false;
         RWing = false;
         WasPlayingDuringSeek = false;
-
+        PlayingTransitionWhiteNoise = false;
         // Do logic to keep track of play time
         StopRecording();
         CheckTVPlayState();
         playStartPosition = playHeadPosition;
         activePlayingTimestamp = null;
         vhsData.RemoveClipsSmallerThan(.5f);
+    }
+
+    public void PrintVHS() {
+        vhsData.Print();
     }
 
     public void SeekCleanup() {
@@ -214,7 +261,6 @@ public class TVController : MonoBehaviour {
 
         // Do logic to keep track of play time
         StopRecording();
-        CheckTVPlayState();
         playStartPosition = playHeadPosition;
         activePlayingTimestamp = null;
         vhsData.RemoveClipsSmallerThan(.5f);
@@ -222,7 +268,7 @@ public class TVController : MonoBehaviour {
 
     public void RecButton() {
         PlayVCRClick();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
         if (recording) {
@@ -256,7 +302,7 @@ public class TVController : MonoBehaviour {
 
     public void FFButton() {
         PlayVCRClick();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
         WasPlayingDuringSeek |= playing;
@@ -264,13 +310,12 @@ public class TVController : MonoBehaviour {
         SeekCleanup();
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
-        StopRecording();
         FFing = true;
     }
 
     public void RWButton() {
         PlayVCRClick();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
         
@@ -279,21 +324,20 @@ public class TVController : MonoBehaviour {
         VCRText.text = "RW";
         // Do logic to keep track of play time, update play position and
         // swap channels and animations accordingly.
-        StopRecording();
         RWing = true;
     }
 
     public void ChannelUpButton() {
-        ChangeChannel(1);
+        //ChangeChannel(1);
     }
 
     public void ChannelDownButton() {
-        ChangeChannel(-1);
+       // ChangeChannel(-1);
     }
 
     public void ChangeChannel(int change) {
         PlayVCRClick();
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
 
@@ -321,7 +365,7 @@ public class TVController : MonoBehaviour {
     }
 
     public void UpdateVCRDisp() {
-        if (!VCRisOn) {
+        if (!VCRIsOn) {
             return;
         }
         System.TimeSpan time = System.TimeSpan.FromSeconds(playHeadPosition);
@@ -374,13 +418,18 @@ public class TVController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (GetTimePassed() > 89) {
+        if (GetTimePassed() > 89 && !playing) {
             if (recording) {
+                StopRecording();
+                while(GetTimePassed() > 89) {
+                    startTime += 89;
+                }
                 StopLogic();
-                startTime = Time.realtimeSinceStartup;
                 StartRecording();
             } else {
-                startTime = Time.realtimeSinceStartup;
+                while (GetTimePassed() > 89) {
+                    startTime += 89;
+                }
             }
             CheckTVPlayState();
         }
@@ -392,7 +441,7 @@ public class TVController : MonoBehaviour {
                 EndOfTape();
             }
         }
-        if (isOn && playing) {
+        if (TVIsOn && playing) {
             PlayingUpdateCall();
         }
         
@@ -401,5 +450,54 @@ public class TVController : MonoBehaviour {
         }
 
         UpdateVCRDisp();
+    }
+
+    public void SaveHandler() {
+        SaveOutput.text = vhsData.SerializeToString();
+    }
+
+    public void LoadHandler() {
+        vhsData.Load(LoadInput.text);
+    }
+
+    public void SugaredWheatsSaveAll() {
+        string solution1 = "31, 35.2 -" +
+            "46.07, 48.2 -" +
+            "79, 84 -" +
+            "56, 59";
+        vhsData.FastLoad(solution1);
+    }
+
+    public void IHaveTheSugaredWheats() {
+        string solution1 = "63.5, 68 -" +
+            "57.5, 61";
+        vhsData.FastLoad(solution1);
+    }
+
+    public void SnakeMassicre () {
+        string solution1 = "11, 16.8 -" +
+            "0, 6";
+        vhsData.FastLoad(solution1);
+    }
+
+    public void DefeatMumitorWithLook() {
+        string solution1 = "27.8, 30.1 -" +
+            "78.8, 81.2";
+        vhsData.FastLoad(solution1);
+    }
+
+    public void NewFriendTeachesManners() {
+        string solution1 = "38.1, 40.84 -" +
+            "21.2, 22.5 -" +
+             "50.77, 52.5";
+        vhsData.FastLoad(solution1);
+    }
+
+    public void LionManTeachesManners() {
+        string solution1 = "38.1, 40.84 -"+
+            "70.0, 71.35 -"+
+             "76.4, 78.8 -"+
+             "50.77, 52.5";
+        vhsData.FastLoad(solution1);
     }
 }
