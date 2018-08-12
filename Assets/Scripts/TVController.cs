@@ -92,7 +92,7 @@ public class TVController : MonoBehaviour {
             VCRText.text = "";
             VCRTapeTime.text = "";
             VCRChannelText.text = "";
-        } else {
+        } else if (!playing) {
             VCRText.text = "STOP";
             VCRTapeTime.text = "00:00";
             SetChannelDisp();
@@ -374,6 +374,17 @@ public class TVController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        if (GetTimePassed() > 89) {
+            if (recording) {
+                StopLogic();
+                startTime = Time.realtimeSinceStartup;
+                StartRecording();
+            } else {
+                startTime = Time.realtimeSinceStartup;
+            }
+            CheckTVPlayState();
+        }
+
         if ((playing && !PlayingTransitionWhiteNoise) || recording) {
             playHeadPosition = playStartPosition + (GetTimePassed() - playStartTime);
             if (playHeadPosition > VHS_LENGTH) {
