@@ -5,10 +5,10 @@ using UnityEngine;
 public class VHSData {
     private List<Timestamp> timestamps = new List<Timestamp>();
     public VHSData() {
-
+        initSolutions();
     }
 
-    public void wipe() {
+    public void Wipe() {
         timestamps = new List<Timestamp>();
     }
 
@@ -116,6 +116,79 @@ public class VHSData {
         }
         return output;
     }
+
+    private List<List<KeyValuePair<float, float>>> solutions = new List<List<KeyValuePair<float, float>>>();
+
+    private void initSolutions() {
+        List<KeyValuePair<float, float>> solution = new List<KeyValuePair<float, float>> {
+            new KeyValuePair<float, float>(11, 16.8f),
+            new KeyValuePair<float, float>(0, 6f)
+        };
+        solutions.Add(solution);
+
+        solution = new List<KeyValuePair<float, float>> {
+            new KeyValuePair<float, float>(27.8f, 30.1f),
+            new KeyValuePair<float, float>(78.8f, 81.2f)
+        };
+        solutions.Add(solution);
+
+        solution = new List<KeyValuePair<float, float>> {
+            new KeyValuePair<float, float>(63.5f, 68f),
+            new KeyValuePair<float, float>(57.5f, 61f)
+        };
+        solutions.Add(solution);
+        
+        solution = new List<KeyValuePair<float, float>> {
+            new KeyValuePair<float, float>(38.1f, 40.84f),
+            new KeyValuePair<float, float>(21.2f, 22.5f),
+            new KeyValuePair<float, float>(50.77f, 52.5f)
+        };
+        solutions.Add(solution);
+        
+        solution = new List<KeyValuePair<float, float>> {
+            new KeyValuePair<float, float>(38.1f, 40.84f),
+            new KeyValuePair<float, float>(76.4f, 78.8f),
+            new KeyValuePair<float, float>(76.4f, 78.8f),
+            new KeyValuePair<float, float>(50.77f, 52.5f)
+        };
+        solutions.Add(solution);
+        
+        solution = new List<KeyValuePair<float, float>> {
+            new KeyValuePair<float, float>(31f, 35.2f),
+            new KeyValuePair<float, float>(46.07f, 48.2f),
+            new KeyValuePair<float, float>(79f, 84f),
+            new KeyValuePair<float, float>(56f, 59f)
+        };
+        solutions.Add(solution);
+    }
+
+    public int IsSolution() {
+        for (int i = 0; i < solutions.Count; i++) {
+            if (CheckSolution(solutions[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    private bool CheckSolution(List<KeyValuePair<float, float>> sol) {
+        int LastOverlap = 0;
+        for (int j = 0; j < sol.Count; j++) {
+            bool hasOverlap = false;
+            for (int i = LastOverlap; i < timestamps.Count; i++) {
+                if (timestamps[i].Overlaps(sol[j].Key, sol[j].Value)) {
+                    LastOverlap = i;
+                    hasOverlap = true;
+                }
+            }
+            if (!hasOverlap) {
+                return false;
+            }
+        }
+        if (sol.Count > 0) {
+            return true;
+        }
+        return false;
+    }
 }
 
 public class Timestamp {
@@ -132,6 +205,11 @@ public class Timestamp {
         Channel = channel;
         AnimStart = animStart;
         AnimStop = animStart + GetLength();
+    }
+
+    public bool Overlaps(float animStart, float animEnd) {
+        return !(animStart < this.AnimStart && animEnd < this.AnimStart 
+            || animStart > this.AnimStop && animEnd > this.AnimStop);
     }
 
     public float GetLength() {

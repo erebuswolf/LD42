@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 public class TVController : MonoBehaviour {
     const float VHS_LENGTH = 15;
+    
+    [SerializeField]
+    private GoalsSheet goalSheet;
+    
+    [SerializeField]
+    private Instructions instructions;
 
     private Animator tVAnimator;
 
@@ -248,6 +254,11 @@ public class TVController : MonoBehaviour {
         playStartPosition = playHeadPosition;
         activePlayingTimestamp = null;
         vhsData.RemoveClipsSmallerThan(.5f);
+
+        int solution = vhsData.IsSolution();
+        if (solution != -1) {
+            goalSheet.SetGoal(solution);
+        }
     }
 
     public void PrintVHS() {
@@ -452,6 +463,10 @@ public class TVController : MonoBehaviour {
         UpdateVCRDisp();
     }
 
+    public void WipeHandler() {
+        vhsData.Wipe();
+    }
+
     public void SaveHandler() {
         SaveOutput.text = vhsData.SerializeToString();
     }
@@ -460,12 +475,12 @@ public class TVController : MonoBehaviour {
         vhsData.Load(LoadInput.text);
     }
 
-    public void SugaredWheatsSaveAll() {
-        string solution1 = "31, 35.2 -" +
-            "46.07, 48.2 -" +
-            "79, 84 -" +
-            "56, 59";
-        vhsData.FastLoad(solution1);
+    public void GoalHander() {
+        goalSheet.ShowSheet();
+    }
+
+    public void InsructionHandler() {
+        instructions.ShowSheet();
     }
 
     public void IHaveTheSugaredWheats() {
@@ -474,7 +489,7 @@ public class TVController : MonoBehaviour {
         vhsData.FastLoad(solution1);
     }
 
-    public void SnakeMassicre () {
+    public void SnakeMassacre() {
         string solution1 = "11, 16.8 -" +
             "0, 6";
         vhsData.FastLoad(solution1);
@@ -498,6 +513,14 @@ public class TVController : MonoBehaviour {
             "70.0, 71.35 -"+
              "76.4, 78.8 -"+
              "50.77, 52.5";
+        vhsData.FastLoad(solution1);
+    }
+
+    public void SugaredWheatsSaveAll() {
+        string solution1 = "31, 35.2 -" +
+            "46.07, 48.2 -" +
+            "79, 84 -" +
+            "56, 59";
         vhsData.FastLoad(solution1);
     }
 }
