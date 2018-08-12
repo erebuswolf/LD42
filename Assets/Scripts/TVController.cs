@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class TVController : MonoBehaviour {
     const float VHS_LENGTH = 15;
-    
+
+    bool VCRONFIRSTTIME;
+
     [SerializeField]
     private GoalsSheet goalSheet;
     
@@ -105,7 +107,6 @@ public class TVController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        startTime = Time.realtimeSinceStartup;
         tVAnimator = GetComponent<Animator>();
         if (tVAnimator == null) {
             Debug.LogError("Null animator in TVController");
@@ -158,6 +159,12 @@ public class TVController : MonoBehaviour {
 
     public void TurnOnVCR() {
         VCRIsOn = !VCRIsOn;
+
+        if (!VCRONFIRSTTIME) {
+            VCRONFIRSTTIME = true;
+            startTime = Time.realtimeSinceStartup;
+        }
+
         CheckTVPlayState();
         CheckVCRPlayState();
         if (!VCRIsOn) {
@@ -254,7 +261,10 @@ public class TVController : MonoBehaviour {
         playStartPosition = playHeadPosition;
         activePlayingTimestamp = null;
         vhsData.RemoveClipsSmallerThan(.5f);
+        CheckIfSolution();
+    }
 
+    public void CheckIfSolution() {
         int solution = vhsData.IsSolution();
         if (solution != -1) {
             goalSheet.SetGoal(solution);
@@ -339,15 +349,16 @@ public class TVController : MonoBehaviour {
     }
 
     public void ChannelUpButton() {
-        //ChangeChannel(1);
+        ChangeChannel(1);
     }
 
     public void ChannelDownButton() {
-       // ChangeChannel(-1);
+        ChangeChannel(-1);
     }
 
     public void ChangeChannel(int change) {
         PlayVCRClick();
+        return;
         if (!VCRIsOn) {
             return;
         }
@@ -473,6 +484,7 @@ public class TVController : MonoBehaviour {
 
     public void LoadHandler() {
         vhsData.Load(LoadInput.text);
+        CheckIfSolution();
     }
 
     public void GoalHander() {

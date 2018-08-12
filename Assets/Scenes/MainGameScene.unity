@@ -3161,7 +3161,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1052635736
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3220,7 +3220,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1238531165}
-        m_MethodName: SugaredWheatsSaveAll
+        m_MethodName: NewFriendTeachesManners
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
