@@ -13,6 +13,9 @@ public class TVController : MonoBehaviour {
     
     [SerializeField]
     private Instructions instructions;
+    
+    [SerializeField]
+    private AudioSource EndOfTapeSound;
 
     private Animator tVAnimator;
 
@@ -395,7 +398,8 @@ public class TVController : MonoBehaviour {
     }
 
     public void EndOfTape() {
-        PlayVCRClick();
+        EndOfTapeSound.Play();
+
         bool wasPlaying = WasPlayingDuringSeek;
         StopLogic();
         VCRText.text = "STOP";

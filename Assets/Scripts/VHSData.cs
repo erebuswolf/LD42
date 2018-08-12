@@ -164,17 +164,17 @@ public class VHSData {
 
     public int IsSolution() {
         for (int i = 0; i < solutions.Count; i++) {
-            if (CheckSolution(solutions[i])) {
+            if (CheckSolution(solutions[i], i==4)) {
                 return i;
             }
         }
         return -1;
     }
-    private bool CheckSolution(List<KeyValuePair<float, float>> sol) {
-        int LastOverlap = 0;
+    private bool CheckSolution(List<KeyValuePair<float, float>> sol, bool allowOverlap) {
+        int LastOverlap = allowOverlap ? 0: - 1;
         for (int j = 0; j < sol.Count; j++) {
             bool hasOverlap = false;
-            for (int i = LastOverlap; i < timestamps.Count; i++) {
+            for (int i = allowOverlap ? LastOverlap : LastOverlap + 1; i < timestamps.Count; i++) {
                 if (timestamps[i].Overlaps(sol[j].Key, sol[j].Value)) {
                     LastOverlap = i;
                     hasOverlap = true;
